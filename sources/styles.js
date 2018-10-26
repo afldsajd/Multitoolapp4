@@ -24,6 +24,10 @@ const styles = StyleSheet.create({
       maxHeight: 450,
       minHeight: 450,
     },
+    zinsContainer: {
+      maxHeight: 450,
+      minHeight: 450,
+    },
     notification: {
       marginTop: 5,
       marginBottom: 5,
