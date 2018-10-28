@@ -12,6 +12,7 @@ export default class Zinsber extends React.Component {
         intervallzeit: "keine",
         intervalleinzahlung: "keine",
         einzahlung: '',
+        schussig: "vor",
         ausgabetext: '',
         ausgabecolor: '#CCC',
         ausgabeindicator: false,
@@ -28,6 +29,7 @@ export default class Zinsber extends React.Component {
             intervallzeit: "keine",
             intervalleinzahlung: "keine",
             einzahlung: '',
+            schussig: "vor",
             ausgabetext: '',
             ausgabecolor: '#CCC',
             ausgabeindicator: false,
@@ -64,9 +66,9 @@ export default class Zinsber extends React.Component {
         })  
         let zei = parseFloat(this.state.zeit);
         let sta = parseFloat(this.state.startkapital);
-        let zin = parseFloat(this.state.zins)/100+1;
+        let zin = parseFloat(this.state.zins)/100;
         let ein = parseFloat(this.state.einzahlung);
-        let einuse = 0;
+        let zeiteil = 0;
         let end = sta;
         let gew = 0;
         if (this.state.startkapital == "") {
@@ -94,32 +96,75 @@ export default class Zinsber extends React.Component {
                 ausgabeindicator: true,
             })
         } else {        
-            switch (this.state.intervallzeit) {
-                case ("monate"): {
-                    zei = Math.floor(zei / 12);
-                }
-                break;
-                case ("jahre"): {
-                    zei = zei;
-                }
-                break;
-            }
             switch (this.state.intervalleinzahlung) { 
+                case ("keine"): {
+                    if (this.state.einzahlung !== "") {
+                        this.setState({
+                            ausgabetext: 'Fehlender intervall der Einzahlung',
+                            ausgabecolor: '#ff0',
+                            ausgabeindicator: true,
+                        }) 
+                    } else if (this.state.einzahlung == "") {
+                        switch (this.state.intervallzeit) {
+                            case ("monate"): {
+                                for (let t = 0; t < (Math.floor(zei/12)); t++) {
+                                    end = end * (zin+1);
+                                }
+                                for (let t = zei; t >= 12; t = t - 12) {
+                                    zei = zei -12;
+                                }
+                                console.log(zei)                               
+                                end += (end * zin * zei) / 12; 
+                            }
+                            break;
+                            case ("jahre"): {
+                                for (let t = 0; t < zei; t++) {
+                                    end = end * (zin+1);
+                                }
+                            }
+                            break;
+                        }
+                        this.setState({
+                            ergebnisindicator: true,
+                        })
+                    }
+                }
+                break;
                 case ("monatlich"): {
                     if (this.state.einzahlung == "") {
                         this.setState({
                             ausgabetext: 'Fehlende Einzahlung',
                             ausgabecolor: '#f00',
                             ausgabeindicator: true,
-                            ergebnisindicator: false,
                         })
-                    } else {       
+
+                        
+                    } else if (this.state.einzahlung !== "") {       
                         this.setState({
-                            ausgabetext: 'Die monatliche Enzahlung wird noch nicht unterstützt',
-                            ausgabecolor: '#ff0',
+                            ausgabetext: 'monatliche Einzahlung noch nicht unterstützt',
+                            ausgabecolor: '#f00',
                             ausgabeindicator: true,
-                            ergebnisindicator: false,
                         })
+                        /*switch (this.state.intervallzeit) {
+                            case ("monate"): {
+                                zeim = zei;
+                                zei = Math.floor(zei / 12);
+                            }
+                            break;
+                            case ("jahre"): {
+                                zei = zei;
+                            }
+                            break;
+                        }
+                        for (let t = 0; t < zeim; t++) {
+                            if (this.state.schussig == "vor") {
+                                end = end + ein;
+                            }
+                            end = end * zin;
+                            if (this.state.schussig == "nach") {
+                                end = end + ein;
+                            }
+                        }*/
                     }
                 }
                 break;
@@ -129,38 +174,35 @@ export default class Zinsber extends React.Component {
                             ausgabetext: 'Fehlende Einzahlung',
                             ausgabecolor: '#f00',
                             ausgabeindicator: true,
-                            ergebnisindicator: false,
                         })
-                    } else {   
-                        einuse = ein;
+                        
+                    } else if (this.state.einzahlung !== "") {  
+                        for (let t = 0; t < zei; t++) {
+                            if (this.state.schussig == "vor") {
+                                end = end + ein;
+                            }
+                            end = end * (zin+1);
+                            if (this.state.schussig == "nach") {
+                                end = end + ein;
+                            }
+                        }
+                        this.setState({
+                            ergebnisindicator: true,
+                        })           
                     }
                 }
                 break;
-                case ("keine"): {
-                    if (this.state.einzahlung !== "") {
-                        this.setState({
-                            ausgabetext: 'Eventuell fehlender intervall der Einzahlung',
-                            ausgabecolor: '#ff0',
-                            ausgabeindicator: true,
-                        }) 
-                    }
-                }
-            }
-            for (let t = 0; t < zei; t++) {
-                end = end * zin;
-                end = end + einuse;
-            }      
+                
+            }          
         }
-            end = end.toFixed(2);
-            gew = end - sta;
-            gew = gew.toFixed(2);
-            this.setState({
-                ergebnisindicator: true,
-                endkapital: "Ihr Endkapital beträgt " + end + "€.",
-                gewinn: "Ihr Gewinn beträgt " + gew + "€.",
-            })
-        
-        
+            
+        end = end.toFixed(2);
+        gew = end - sta;
+        gew = gew.toFixed(2);
+        this.setState({ 
+            endkapital: "Ihr Endkapital beträgt " + end + "€.",
+            gewinn: "Ihr Gewinn beträgt " + gew + "€.",
+        })
     }
     
     render() {
@@ -190,6 +232,13 @@ export default class Zinsber extends React.Component {
                         <Picker.Item label="Keine" value="keine" style={styles.inputText}/>
                         <Picker.Item label="monatlich" value="monatlich" style={styles.inputText}/>
                         <Picker.Item label="jährlich" value="jährlich" style={styles.inputText}/>
+                    </Picker>
+                    <Picker
+                        selectedValue={this.state.schussig}
+                        style={[styles.inputPicker]}
+                        onValueChange={(itemValue,) => this.setState({schussig: itemValue})}>
+                        <Picker.Item label="vorschüssig" value="vor" style={styles.inputText}/>
+                        <Picker.Item label="nachschüssig" value="nach" style={styles.inputText}/>
                     </Picker>
                     <TextInput onChangeText={this.Einzahlung} value={this.state.einzahlung} style={styles.inputText} placeholder="-"></TextInput>
                 </View>
