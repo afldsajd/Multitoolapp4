@@ -112,8 +112,7 @@ export default class Zinsber extends React.Component {
                                 }
                                 for (let t = zei; t >= 12; t = t - 12) {
                                     zei = zei -12;
-                                }
-                                console.log(zei)                               
+                                }                             
                                 end += (end * zin * zei) / 12; 
                             }
                             break;
@@ -176,6 +175,12 @@ export default class Zinsber extends React.Component {
                             ausgabeindicator: true,
                         })
                         
+                    } else if (this.state.intervallzeit = "monatlich") {
+                        this.setState({
+                            ausgabetext: 'monatlicher Intervall mit Einzahlung noch nicht unterstützt',
+                            ausgabecolor: '#f00',
+                            ausgabeindicator: true,
+                        })
                     } else if (this.state.einzahlung !== "") {  
                         for (let t = 0; t < zei; t++) {
                             if (this.state.schussig == "vor") {
