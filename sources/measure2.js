@@ -21,19 +21,26 @@ export default class Bewegungsmesser extends React.Component {
 
     helper = {
         c: 0,
-
         x: 0,
         y: 0,
-        z: 0,
-       
         averageIndicator: 0,
     };
 
     measurementData = []
-
+    /*    all: [],
+        a: [],
+        b: [],
+        c: [],
+        d: [],
+        e: [],
+        f: [],
+        g: [],
+        h: [],
+        i: [],
+        j: [], */    
+    
     durchschnittler = []
     durchschnittler2 = []
-    
 
     constructor(props) {
         super(props);    
@@ -43,7 +50,6 @@ export default class Bewegungsmesser extends React.Component {
     Start = (val) => {
         if (this.state.buttontitle == "Start") {
             console.log("Start");
-            
             this.setState({
                     buttontitle: "Stop",
                     fehlercode1: '',
@@ -51,14 +57,11 @@ export default class Bewegungsmesser extends React.Component {
                 })
             Accelerometer.setUpdateInterval(10);
             Accelerometer.addListener(accelerometerData => {
-                
                 this.measurementData.push({
                     x: accelerometerData.x*9.81, 
                     y: accelerometerData.y*9.81,
-                    z: accelerometerData.z*9.81-9.81,
                 })
             });
-
             this.measurementData = []   
 
         } else if (this.state.buttontitle == "Stop") {
@@ -91,47 +94,47 @@ export default class Bewegungsmesser extends React.Component {
                 return {x: x, y:y}
             })
             
+
+
             while(this.allZero(cleanedData.slice(g, g+10)) && g <= cleanedData.length) {
                 g++;
             }
 
-            while(!this.allZero(cleanedData.slice(g, g+10)) && g <= cleanedData.length) {
+            while(!this.allZero(cleanedData.slice(g, g+10)) && g <= cleanedData.length) {    
                 sx += (cleanedData[g].x/2)*(0.01*0.01)+(vox*0.01);
                 vox += (cleanedData[g].x*0.01);
     
                 sy += (cleanedData[g].y/2)*(0.01*0.01)+(voy*0.01);
                 voy += (cleanedData[g].y*0.01);
-               
+            
                 g++
             }
-            c = (Math.sqrt(sx*sx+sy*sy))*2;
-            if (Math.abs(c) > 0.01) {
-                this.durchschnittler2 = this.durchschnittler.push(c);
-                dlength = this.durchschnittler.length;
-                for (let y = 0; y < dlength; y++) {
-                    dpem += this.durchschnittler[y];
-                }
-                d = dpem / dlength;        
-
-                this.setState({
-                    ausgabe: Math.round(c * 100) / 100,
-                    ausgabe2: Math.round(d * 100) / 100,
-                    buttontitle: "Start",
-                    durchschnittleranzeige: '(' + dlength + ')',
-                })
-
-                this.measurementData = [];
-
-            } else {
-                this.setState({
-                    fehlercode1: 'zu kleine Messung',
-                    fehlerindicator: true,
-                    buttontitle: "Start",
-                })
+        
+        c = (Math.sqrt(sx*sx+sy*sy))*2;
+        if (Math.abs(c) > 0.01) {
+            this.durchschnittler2 = this.durchschnittler.push(c);
+            dlength = this.durchschnittler.length;
+            for (let g = 0; g < dlength; g++) {
+                dpem += this.durchschnittler[g];
             }
-            
-        }        
-    }
+            d = dpem / dlength;
+            this.setState({
+                ausgabe: Math.round(c * 100) / 100,
+                ausgabe2: Math.round(d * 100) / 100,
+                buttontitle: "Start",
+                durchschnittleranzeige: '(' + dlength + ')',
+            })
+            this.measurementData = [];
+        } else {
+            this.setState({
+                fehlercode1: 'zu kleine Messung',
+                fehlerindicator: true,
+                buttontitle: "Start",
+            })
+        }
+        }    
+    }        
+    
 
     Loschen = () => {
         if (this.state.buttontitle == "Start") {
